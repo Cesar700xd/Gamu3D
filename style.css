@@ -116,7 +116,7 @@ main p {
   ESTILOS PARA INDEX.HTML
 ------------------------------------------- */
 body.home .contenido-principal {
-  background-image: url('/img/balnearioUncia.jpeg'); /* Imagen de fondo específica para index */
+  background-image: url('/balnearioUncia.jpeg'); /* Imagen de fondo específica para index */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1376,4 +1376,5 @@ header {
 @keyframes fadeInOut {
   0%, 100% { opacity: 0; }
   50% { opacity: 0.8; }
+
 }
