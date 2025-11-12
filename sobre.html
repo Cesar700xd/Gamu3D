@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sobre el Balneario</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="fondo.js" defer></script>
+
+  <style>
+    /* Estilo opcional para el contenedor 3D */
+    #escena3D {
+      width: 800px;
+      height: 550px;
+      display: block;
+      margin: 0 auto;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    /* Estilos para el contenedor de información */
+    #info-container {
+      display: none;
+      margin-top: 30px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    }
+    
+    #info-container.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #00ffff;
+      color: #000;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    
+    .close-btn:hover {
+      background: #00cccc;
+    }
+    
+    /* Estilos para el botón flotante */
+    .model-tooltip {
+      position: absolute;
+      background: rgba(0, 255, 255, 0.9);
+      color: #000;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .model-tooltip.visible {
+      opacity: 1;
+    }
+    
+    .model-tooltip .icon {
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Fondo animado -->
+  <div class="animated-background">
+    <div class="gradient-layer"></div>
+    <div class="wave-layer"></div>
+    <div class="wave-layer"></div>
+    <div class="wave-layer"></div>
+  </div>
+  <aside>
+    <h1>BALNEARIO UNCIA</h1>
+    <nav>
+      <a href="sobre.html">Sobre el balneario</a>
+      <a href="galeria.html">Galería</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="como-llegar.html">Cómo llegar</a>
+      <a href="contactos.html">Contactos</a>
+    </nav>
+  </aside>
+
+  <div class="contenido-principal">
+    <header>
+      SOBRE EL BALNEARIO "AGUAS TERMALES DE UNCÍA"
+    </header>
+
+    <main class="info-balneario">
+
+      <section>
+        <div class="imagen">
+          <!-- Contenedor para la escena 3D -->
+          <div id="escena3D">
+            <!-- Botón flotante para los modelos 3D -->
+            <div class="model-tooltip" id="modelTooltip">
+              <span class="icon">👆</span>
+              <span>Haz clic para más información</span>
+            </div>
+          </div>
+      </div>
+      </section>
+      
+      <!-- Contenedor para la información que se mostrará al hacer clic -->
+      <div id="info-container">
+        <button class="close-btn">Cerrar</button>
+        
+        <section class="seccion-bloque">
+          <div class="texto">
+            <h2>Historia y Origen</h2>
+            <p>
+              El Balneario de Aguas Termales de Uncía se encuentra en el departamento de Potosí, Bolivia, y es conocido por sus aguas ricas en minerales con propiedades curativas. Estas aguas provienen de fuentes subterráneas naturales, alimentadas por la actividad geotérmica de la región andina.
+            </p>
+          </div>
+          <div class="imagen">
+            <img src="/img/cerro.jpeg" alt="Historia del balneario">
+          </div>
+        </section>
+
+        <!-- Sección intercalada 1: imagen a la izquierda -->
+        <section class="seccion-bloque intercalado">
+          <div class="imagen">
+            <img src="/img/balnearioUncia.jpeg" alt="Piscina termal">
+          </div>
+          <div class="texto">
+            <h2>Infraestructura</h2>
+            <p>
+              El balneario cuenta con piscinas termales para adultos y niños, áreas verdes, duchas, vestuarios y zonas de descanso. Todo ha sido diseñado para ofrecer comodidad y relajación a los visitantes.
+            </p>
+          </div>
+        </section>
+
+        <!-- Sección intercalada 2: texto primero -->
+        <section class="seccion-bloque">
+          <div class="texto">
+            <h2>Beneficios de las Aguas Termales</h2>
+            <p>
+              Las aguas termales son ideales para tratar afecciones como artritis, estrés, problemas musculares y de la piel. El calor natural ayuda a mejorar la circulación y relajar el cuerpo.
+            </p>
+          </div>
+          <div class="imagen">
+            <img src="/img/beneficios.png" alt="Beneficios de las aguas termales">
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
+<script>
+  let scene, camera, renderer;
+  let tierraGroup, libroGroup;
+  let raycaster, mouse;
+  let infoContainer;
+  let modelTooltip;
+  let hoveredObject = null;
+  let originalMaterials = {};
+
+  function init() {
+    // Escena y cámara
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45,
+      document.getElementById("escena3D").clientWidth / document.getElementById("escena3D").clientHeight,
+      0.1, 1000
+    );
+    camera.position.set(5, 3, 8);
+    camera.lookAt(0, 0, 0);
+
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(
+      document.getElementById("escena3D").clientWidth,
+      document.getElementById("escena3D").clientHeight
+    );
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.getElementById("escena3D").appendChild(renderer.domElement);
+
+    // Iluminación
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 5, 5);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    const rimLight = new THREE.DirectionalLight(0x4FC3F7, 0.3);
+    rimLight.position.set(-3, 2, 3);
+    scene.add(rimLight);
+
+    // Crear objetos
+    crearTierra3D();
+    crearLibro3D();
+    
+    // Configurar detección de clics
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+    infoContainer = document.getElementById('info-container');
+    modelTooltip = document.getElementById('modelTooltip');
+    
+    // Event listeners
+    renderer.domElement.addEventListener('click', onMouseClick);
+    renderer.domElement.addEventListener('mousemove', onMouseMove);
+    document.querySelector('.close-btn').addEventListener('click', closeInfo);
+    
+    animate();
+  }
+
+  function crearTierra3D() {
+    tierraGroup = new THREE.Group();
+
+    const loader = new THREE.TextureLoader();
+    const material = new THREE.MeshStandardMaterial({
+      map: loader.load('https://cdn.glitch.global/f2de7f9b-ff5d-4025-a380-0020983374bd/tierra.jpg?v=1750969975286'),
+      roughness: 0.5,
+      metalness: 0.1
+    });
+
+    const esfera = new THREE.Mesh(new THREE.SphereGeometry(2.5, 32, 32), material);
+    esfera.castShadow = true;
+    esfera.userData = { type: 'tierra' }; // Identificar el objeto
+    tierraGroup.add(esfera);
+
+    tierraGroup.position.x = -4; // mover a la izquierda
+    scene.add(tierraGroup);
+  }
+
+  function crearLibro3D() {
+    libroGroup = new THREE.Group();
+
+    // Crear textura para la tapa
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createLinearGradient(0,0,512,512);
+    gradient.addColorStop(0,'#8B4513');
+    gradient.addColorStop(0.5,'#A0522D');
+    gradient.addColorStop(1,'#654321');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,512,512);
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 48px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('HISTORIA', 256, 200);
+    ctx.fillText('DE UNCÍA', 256, 280);
+    const texturaLibro = new THREE.CanvasTexture(canvas);
+
+    // Tapa frontal
+    const tapaGeometry = new THREE.BoxGeometry(3,4,0.2);
+    const tapaMaterial = new THREE.MeshPhongMaterial({ map: texturaLibro, shininess:30 });
+    const tapaFrontal = new THREE.Mesh(tapaGeometry, tapaMaterial);
+    tapaFrontal.position.z = 0.5;
+    tapaFrontal.userData = { type: 'libro' }; // Identificar el objeto
+    libroGroup.add(tapaFrontal);
+
+    // Tapa trasera
+    const tapaTrasera = new THREE.Mesh(tapaGeometry, new THREE.MeshPhongMaterial({ color:0x654321, shininess:20 }));
+    tapaTrasera.position.z = -0.5;
+    libroGroup.add(tapaTrasera);
+
+    // Lomo
+    const lomo = new THREE.Mesh(new THREE.BoxGeometry(0.2,4,1), new THREE.MeshPhongMaterial({ color:0x5D4037, shininess:25 }));
+    lomo.position.x = -1.5;
+    libroGroup.add(lomo);
+
+    // Páginas
+    for(let i=0;i<20;i++){
+      const pagina = new THREE.Mesh(new THREE.PlaneGeometry(2.8,3.8), new THREE.MeshPhongMaterial({ color:0xFFFAF0, side:THREE.DoubleSide, transparent:true, opacity:0.9 }));
+      pagina.position.set(Math.sin(i*0.1)*0.1,0,(i-10)*0.02);
+      libroGroup.add(pagina);
+    }
+
+    // Posición del libro
+    libroGroup.position.x = 2; // mover a la derecha
+    scene.add(libroGroup);
+  }
+
+  function onMouseMove(event) {
+    // Calcular posición del mouse en coordenadas normalizadas
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // Actualizar raycaster
+    raycaster.setFromCamera(mouse, camera);
+
+    // Calcular intersecciones
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    // Verificar si el mouse está sobre un objeto interactivo
+    let foundObject = false;
+    for (let i = 0; i < intersects.length; i++) {
+      const object = intersects[i].object;
+      if (object.userData.type === 'tierra' || object.userData.type === 'libro') {
+        foundObject = true;
+        
+        // Si es un objeto diferente al anteriormente seleccionado
+        if (hoveredObject !== object) {
+          // Restaurar el material del objeto anterior
+          if (hoveredObject) {
+            hoveredObject.material = originalMaterials[hoveredObject.uuid];
+            delete originalMaterials[hoveredObject.uuid];
+          }
+          
+          // Guardar el material original y crear un nuevo material con brillo
+          originalMaterials[object.uuid] = object.material;
+          object.material = object.material.clone();
+          object.material.emissive = new THREE.Color(0x00ffff);
+          object.material.emissiveIntensity = 0.3;
+          
+          hoveredObject = object;
+        }
+        
+        // Mostrar el tooltip
+        modelTooltip.classList.add('visible');
+        
+        // Posicionar el tooltip cerca del objeto
+        const vector = new THREE.Vector3();
+        object.getWorldPosition(vector);
+        vector.project(camera);
+        
+        const x = (vector.x * 0.5 + 0.5) * rect.width;
+        const y = (-vector.y * 0.5 + 0.5) * rect.height;
+        
+        modelTooltip.style.left = `${x}px`;
+        modelTooltip.style.top = `${y}px`;
+        
+        break;
+      }
+    }
+    
+    // Si no se encontró ningún objeto, ocultar el tooltip y restaurar materiales
+    if (!foundObject && hoveredObject) {
+      hoveredObject.material = originalMaterials[hoveredObject.uuid];
+      delete originalMaterials[hoveredObject.uuid];
+      hoveredObject = null;
+      modelTooltip.classList.remove('visible');
+    }
+  }
+
+  function onMouseClick(event) {
+    // Calcular posición del mouse en coordenadas normalizadas
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // Actualizar raycaster
+    raycaster.setFromCamera(mouse, camera);
+
+    // Calcular intersecciones
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    // Verificar si se hizo clic en la tierra o el libro
+    for (let i = 0; i < intersects.length; i++) {
+      const object = intersects[i].object;
+      if (object.userData.type === 'tierra' || object.userData.type === 'libro') {
+        showInfo();
+        break;
+      }
+    }
+  }
+
+  function showInfo() {
+    infoContainer.classList.add('active');
+    // Desplazamiento suave hacia la información
+    infoContainer.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function closeInfo() {
+    infoContainer.classList.remove('active');
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    tierraGroup.rotation.y += 0.01;
+    libroGroup.rotation.y += 0.008;
+    libroGroup.rotation.x = Math.sin(Date.now()*0.0008)*0.15;
+
+    renderer.render(scene,camera);
+  }
+
+  init();
+</script>
+
+<style>
+/* ------------------------------------------
+  ESTILOS PARA SOBRE.HTML
+------------------------------------------- */
+.info-balneario {
+  padding: 50px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #0a0000;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.seccion-bloque {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.seccion-bloque:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.seccion-bloque .texto {
+  flex: 1;
+  min-width: 280px;
+  padding: 10px;
+}
+
+.seccion-bloque .texto h2 {
+  font-size: 24px;
+  color: #00ffff;
+  margin-bottom: 12px;
+}
+
+.seccion-bloque .texto p {
+  font-size: 25px;
+  line-height: 1.7;
+  color: #f6f6f6;
+}
+
+.seccion-bloque .imagen {
+  flex: 1;
+  min-width: 280px;
+  text-align: center;
+}
+
+.seccion-bloque .imagen img {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.seccion-bloque .imagen img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 255, 255, 0.4);
+}
+
+.seccion-bloque.intercalado {
+  flex-direction: row-reverse;
+}
+
+@media (max-width: 768px) {
+  .seccion-bloque {
+    flex-direction: column;
+    text-align: center;
+  }
+  .seccion-bloque.intercalado {
+    flex-direction: column;
+  }
+}
+</style>
+</body>
+</html>

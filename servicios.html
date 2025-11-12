@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Servicios - Balneario Uncía</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="fondo.js" defer></script>
+  
+  <!-- Importar model-viewer para mostrar modelos 3D -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+  <style>
+    /* Fondo animado */
+    .animated-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      overflow: hidden;
+    }
+
+    .gradient-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      opacity: 0.7;
+    }
+
+    .wave-layer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="%23FFFFFF"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="%23FFFFFF"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23FFFFFF"/></svg>');
+      background-size: cover;
+      opacity: 0.3;
+    }
+
+    /* Modelo 3D como fondo */
+    .modelo-3d-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      overflow: hidden;
+   /* Opacidad para que no interfiera con el contenido */
+    }
+
+    #sketchfab-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      transition: transform 0.3s ease;
+      transform-origin: center center;
+    }
+
+    /* Contenedor principal - MODIFICADO PARA ALINEAR A LA DERECHA */
+    .contenido-principal {
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(3px);
+      border-radius: 15px;
+      padding: 2rem;
+      margin: 2rem 2rem 2rem 270px; /* Margen izquierdo aumentado para espacio del menú */
+      color: white;
+      max-width: 1200px;
+      float: right; /* Alineación a la derecha */
+    }
+
+    /* Contenedor de las cartas - MODIFICADO PARA ALINEAR A LA DERECHA */
+    .grid-servicios {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+      perspective: 1000px; /* Para efecto 3D */
+      justify-items: end; /* Alinea los elementos al final (derecha) */
+    }
+
+    /* Cada carta */
+    .servicio {
+      width: 100%;
+      height: 320px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s;
+      cursor: pointer;
+      justify-self: end; /* Alinea cada carta a la derecha */
+    }
+
+    .servicio:hover {
+      transform: rotateY(180deg);
+    }
+
+    /* Lados de la carta */
+    .servicio-front, .servicio-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    }
+
+    /* Frente */
+    .servicio-front {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .servicio-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .servicio-front h3 {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      background: rgba(0,0,0,0.6);
+      padding: 0.5rem;
+      color: #fff;
+      font-size: 1.2rem;
+    }
+
+    /* Reverso */
+    .servicio-back {
+      background: linear-gradient(135deg, #00f5ff55, #9d00ff55);
+      color: #fff;
+      transform: rotateY(180deg);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .servicio-back h3 {
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      color: #ffffff;
+    }
+
+    .servicio-back p {
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+
+    /* Aside - Menú lateral a la izquierda */
+    aside {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      padding: 2rem;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      color: white;
+    }
+
+    aside h1 {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: #00f5ff;
+    }
+
+    aside nav {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    aside nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.8rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    aside nav a:hover {
+      background: rgba(0, 245, 255, 0.3);
+      transform: translateX(10px);
+    }
+
+    /* Header principal */
+    header {
+      font-size: 2.5rem;
+      text-align: right; /* Alineado a la derecha */
+      margin-bottom: 2rem;
+      color: #00f5ff;
+      text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+    }
+
+    /* Título de servicios */
+    .servicios h2 {
+      text-align: right; /* Alineado a la derecha */
+      margin-bottom: 1.5rem;
+      color: #ffffff;
+    }
+
+    /* Modelo 3D en la esquina inferior derecha - AUMENTADO DE TAMAÑO */
+    .modelo-3d-esquina {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px; /* Aumentado de 200px a 300px */
+      height: 300px; /* Aumentado de 200px a 300px */
+      z-index: 5;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      /* Animación de flotación */
+      animation: flotar 4s ease-in-out infinite;
+    }
+
+    /* Animación de flotación para el contenedor */
+    @keyframes flotar {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-15px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    .modelo-3d-esquina model-viewer {
+      width: 100%;
+      height: 100%;
+      --poster-color: transparent;
+      /* Aumentar la velocidad de rotación */
+      --auto-rotate-speed: 30deg/s;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      aside {
+        width: 200px;
+        padding: 1.5rem;
+      }
+      
+      aside h1 {
+        font-size: 1.5rem;
+      }
+      
+      .contenido-principal {
+        margin-left: 220px;
+        padding: 1.5rem;
+        float: none; /* Quitamos el float en móviles */
+      }
+      
+      header {
+        font-size: 2rem;
+        text-align: center; /* Centrado en móviles */
+      }
+      
+      .servicios h2 {
+        text-align: center; /* Centrado en móviles */
+      }
+      
+      .grid-servicios {
+        justify-items: center; /* Centrado en móviles */
+      }
+      
+      .servicio {
+        justify-self: center; /* Centrado en móviles */
+      }
+      
+      /* Ajustar el modelo 3D para pantallas más pequeñas */
+      .modelo-3d-esquina {
+        width: 200px; /* Aumentado de 150px a 200px */
+        height: 200px; /* Aumentado de 150px a 200px */
+        bottom: 10px;
+        right: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 1rem;
+      }
+      
+      aside h1 {
+        margin-bottom: 1rem;
+      }
+      
+      aside nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      
+      aside nav a {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+      
+      .contenido-principal {
+        margin-left: 0;
+        margin-top: 1rem;
+        float: none; /* Quitamos el float en móviles */
+      }
+      
+      /* Ajustar aún más el modelo 3D para pantallas muy pequeñas */
+      .modelo-3d-esquina {
+        width: 150px; /* Aumentado de 100px a 150px */
+        height: 150px; /* Aumentado de 100px a 150px */
+        bottom: 5px;
+        right: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Modelo 3D como fondo con controles de zoom -->
+  <div class="modelo-3d-background">
+    <iframe 
+      id="sketchfab-iframe" 
+      src="https://sketchfab.com/models/d5e673e13b774deba137bd2e99af8e65/embed?autostart=1&ui_hint=0" 
+      frameborder="0" 
+      allowfullscreen mozallowfullscreen="true" 
+      webkitallowfullscreen="true" 
+      allow="autoplay; fullscreen; xr-spatial-tracking" 
+      xr-spatial-tracking 
+      execution-while-out-of-viewport 
+      execution-while-not-rendered 
+      web-share>
+    </iframe>
+  </div>
+
+  <!-- Fondo animado -->
+  <div class="animated-background">
+    <div class="gradient-layer"></div>
+    <div class="wave-layer"></div>
+    <div class="wave-layer"></div>
+    <div class="wave-layer"></div>
+  </div>
+
+  <aside>
+    <h1>BALNEARIO UNCIA</h1>
+    <nav>
+      <a href="sobre.html">Sobre el balneario</a>
+      <a href="galeria.html">Galería</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="como-llegar.html">Cómo llegar</a>
+      <a href="contactos.html">Contactos</a>
+    </nav>
+  </aside>
+
+  <div class="contenido-principal">
+    <header>
+      SERVICIOS DEL BALNEARIO
+    </header>
+
+    <main class="servicios">
+      <h2>¿Qué ofrecemos?</h2>
+      <div class="grid-servicios">
+
+        <!-- Carta 1 -->
+        <div class="servicio">
+          <div class="servicio-front">
+            <img src="/img/piscina1.jpeg" alt="Piscinas termales">
+            <h3>Piscinas Termales</h3>
+          </div>
+          <div class="servicio-back">
+            <h3>Piscinas Termales</h3>
+            <p>Aguas calientes ricas en minerales, ideales para relajación y salud corporal.</p>
+          </div>
+        </div>
+
+        <!-- Carta 2 -->
+        <div class="servicio">
+          <div class="servicio-front">
+            <img src="/img/snack.jpeg" alt="Cafetería">
+            <h3>Cafetería & Snacks</h3>
+          </div>
+          <div class="servicio-back">
+            <h3>Cafetería & Snacks</h3>
+            <p>Área de descanso con bebidas calientes, jugos naturales y refrigerios locales.</p>
+          </div>
+        </div>
+
+        <!-- Carta 3 -->
+        <div class="servicio">
+          <div class="servicio-front">
+            <img src="/img/piscina2.jpeg" alt="Vestidores y duchas">
+            <h3>Vestidores y Duchas</h3>
+          </div>
+          <div class="servicio-back">
+            <h3>Vestidores y Duchas</h3>
+            <p>Espacios limpios, seguros y cómodos para cambiarse antes y después del baño.</p>
+          </div>
+        </div>
+
+        <!-- Carta 4 -->
+        <div class="servicio">
+          <div class="servicio-front">
+            <img src="/img/parada de autos.jpeg" alt="Parqueo">
+            <h3>Parqueo Publico</h3>
+          </div>
+          <div class="servicio-back">
+            <h3>Parqueo Publico</h3>
+            <p>Zona segura para dejar vehículos, con vigilancia durante el día.</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modelo 3D en la esquina inferior derecha -->
+  <div class="modelo-3d-esquina" id="modeloContainer">
+    <model-viewer 
+      src="model/personas.glb" 
+      alt="Modelo 3D de personas"
+      auto-rotate
+      camera-controls
+      shadow-intensity="1"
+      exposure="1"
+      auto-rotate-delay="0">
+    </model-viewer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Obtener elementos del modelo 3D
+      const iframe = document.getElementById('sketchfab-iframe');
+      
+      // Evento para cuando el iframe se carga correctamente
+      iframe.addEventListener('load', function() {
+        console.log('Modelo 3D cargado correctamente como fondo');
+        
+        // Intentar iniciar la reproducción automáticamente
+        try {
+          // Si el modelo tiene una API de Sketchfab, intentar reproducir
+          const iframeWindow = iframe.contentWindow;
+          iframeWindow.postMessage({
+            type: 'autoplay',
+            value: 1
+          }, 'https://sketchfab.com');
+        } catch (e) {
+          console.log('No se pudo iniciar autoplay automáticamente:', e);
+        }
+      });
+      
+      // Evento para manejar errores de carga
+      iframe.addEventListener('error', function() {
+        console.error('Error al cargar el modelo de Sketchfab como fondo');
+      });
+      
+      // Configurar el modelo 3D de la esquina
+      const modelViewer = document.querySelector('.modelo-3d-esquina model-viewer');
+      const modeloContainer = document.getElementById('modeloContainer');
+      
+      // Variables para el control de poses
+      let currentPoseIndex = 0;
+      let poseInterval;
+      const poses = [
+        { name: 'Pose 1', rotation: '0deg 0deg 0deg', scale: '1 1 1' },
+        { name: 'Pose 2', rotation: '0deg 15deg 0deg', scale: '1 1 1' },
+        { name: 'Pose 3', rotation: '0deg 0deg 15deg', scale: '1 1 1' },
+        { name: 'Pose 4', rotation: '15deg 0deg 0deg', scale: '1 1 1' },
+        { name: 'Pose 5', rotation: '0deg -15deg 0deg', scale: '1 1 1' },
+        { name: 'Pose 6', rotation: '0deg 0deg -15deg', scale: '1 1 1' },
+        { name: 'Pose 7', rotation: '-15deg 0deg 0deg', scale: '1 1 1' },
+        { name: 'Pose 8', rotation: '0deg 30deg 0deg', scale: '1.1 1.1 1' },
+        { name: 'Pose 9', rotation: '0deg 0deg 30deg', scale: '1.1 1.1 1' },
+        { name: 'Pose 10', rotation: '30deg 0deg 0deg', scale: '1.1 1.1 1' }
+      ];
+      
+      // Evento para cuando el modelo se carga
+      modelViewer.addEventListener('load', () => {
+        console.log('Modelo 3D de personas cargado correctamente');
+        
+        // Obtener las animaciones disponibles del modelo
+        const anims = modelViewer.availableAnimations || [];
+        console.log("Animaciones disponibles:", anims);
+        
+        // Si hay animaciones disponibles, reproducir la primera
+        if (anims.length > 0) {
+          modelViewer.animationName = anims[0];
+          modelViewer.play();
+          
+          // Iniciar el ciclo de animaciones
+          iniciarCicloAnimaciones(modelViewer, anims);
+        } else {
+          // Si no hay animaciones, iniciar el ciclo de poses
+          iniciarCicloPoses();
+        }
+        
+        // Iniciar movimiento circular después de cargar el modelo
+        iniciarMovimientoCircular();
+      });
+      
+      // Evento para manejar errores de carga del modelo
+      modelViewer.addEventListener('error', (event) => {
+        console.error('Error al cargar el modelo 3D de personas:', event);
+        
+        // Mostrar un mensaje de error o un modelo alternativo
+        const errorDiv = document.createElement('div');
+        errorDiv.style.position = 'absolute';
+        errorDiv.style.top = '0';
+        errorDiv.style.left = '0';
+        errorDiv.style.width = '100%';
+        errorDiv.style.height = '100%';
+        errorDiv.style.display = 'flex';
+        errorDiv.style.alignItems = 'center';
+        errorDiv.style.justifyContent = 'center';
+        errorDiv.style.color = 'white';
+        errorDiv.style.textAlign = 'center';
+        errorDiv.style.padding = '10px';
+        errorDiv.style.boxSizing = 'border-box';
+        errorDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        errorDiv.innerHTML = 'No se pudo cargar el modelo 3D<br><small>Verifica que el archivo exista en la ruta: model/personas.glb</small>';
+        
+        const container = document.querySelector('.modelo-3d-esquina');
+        container.appendChild(errorDiv);
+      });
+      
+      // Al hacer clic en el modelo, cambiar la animación o pose
+      modelViewer.addEventListener('click', () => {
+        const anims = modelViewer.availableAnimations || [];
+        
+        if (anims.length > 1) {
+          // Obtener la animación actual
+          const currentAnim = modelViewer.animationName;
+          
+          // Encontrar el índice de la animación actual
+          const currentIndex = anims.indexOf(currentAnim);
+          
+          // Calcular el índice de la siguiente animación
+          const nextIndex = (currentIndex + 1) % anims.length;
+          
+          // Establecer la siguiente animación
+          modelViewer.animationName = anims[nextIndex];
+          modelViewer.play();
+          
+          console.log(`Cambiando a la animación: ${anims[nextIndex]}`);
+        } else {
+          // Si no hay animaciones, cambiar a la siguiente pose
+          cambiarPose();
+        }
+      });
+      
+      // Función para iniciar el ciclo de animaciones
+      function iniciarCicloAnimaciones(viewer, anims) {
+        if (anims.length <= 1) return; // No hay suficientes animaciones para ciclar
+        
+        let currentIndex = 0;
+        
+        // Cambiar de animación cada 3 segundos
+        poseInterval = setInterval(() => {
+          currentIndex = (currentIndex + 1) % anims.length;
+          viewer.animationName = anims[currentIndex];
+          viewer.play();
+          console.log(`Cambiando automáticamente a la animación: ${anims[currentIndex]}`);
+        }, 3000);
+      }
+      
+      // Función para iniciar el ciclo de poses
+      function iniciarCicloPoses() {
+        // Cambiar de pose cada 2.5 segundos
+        poseInterval = setInterval(() => {
+          cambiarPose();
+        }, 2500);
+      }
+      
+      // Función para cambiar a la siguiente pose
+      function cambiarPose() {
+        currentPoseIndex = (currentPoseIndex + 1) % poses.length;
+        const pose = poses[currentPoseIndex];
+        
+        // Aplicar la rotación y escala al modelo
+        modelViewer.orientation = pose.rotation;
+        modelViewer.scale = pose.scale;
+        
+        console.log(`Cambiando automáticamente a la pose: ${pose.name}`);
+      }
+      
+      // Función para iniciar el movimiento circular
+      function iniciarMovimientoCircular() {
+        let angulo = 0;
+        const radio = 20; // Radio del movimiento circular en píxeles
+        const velocidad = 0.02; // Velocidad del movimiento
+        
+        function moverModelo() {
+          // Calcular nueva posición en círculo
+          const x = Math.cos(angulo) * radio;
+          const y = Math.sin(angulo) * radio;
+          
+          // Aplicar transformación al contenedor
+          modeloContainer.style.transform = `translate(${x}px, ${y}px)`;
+          
+          // Incrementar ángulo
+          angulo += velocidad;
+          
+          // Continuar la animación
+          requestAnimationFrame(moverModelo);
+        }
+        
+        // Iniciar el movimiento
+        moverModelo();
+      }
+    });
+  </script>
+</body>
+</html>

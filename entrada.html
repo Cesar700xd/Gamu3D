@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balneario 3D - Interior</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            width: 100vw;
+            height: 100vh;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            max-width: 320px;
+            z-index: 100;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        h3 {
+            margin: 0 0 10px 0;
+            color: #4fc3f7;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="info">
+        <h3>🏊 Balneario - Vista Interior</h3>
+        <p style="margin: 5px 0;"><strong>Distribución arquitectónica:</strong></p>
+        <p style="margin: 5px 0; font-size: 12px;">
+        <strong>Frontal Derecho:</strong> Puerta principal + Ventanilla<br>
+        <strong>Centro Frontal:</strong> 3 accesos (Vestidor Damas, Sauna Mixto, Vestidor Varones)<br>
+        <strong>Frontal Izquierdo:</strong> Tienda de productos y alimentos<br>
+        <strong>Centro:</strong> Piscina principal<br>
+        <strong>Trasera:</strong> Puerta de salida central
+        </p>
+    </div>
+    <div id="controls">
+        <strong>🖱️ Controles:</strong><br>
+        Arrastrar: Rotar vista<br>
+        Rueda: Zoom in/out<br>
+        Clic derecho: Desplazar
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer;
+        let mainPool, waterAnimationTime = 0;
+
+        function init() {
+            // Escena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb);
+            scene.fog = new THREE.Fog(0x87ceeb, 60, 150);
+
+            // Cámara
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(35, 28, 40);
+            camera.lookAt(0, 0, 0);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            // Controles de cámara
+            setupCameraControls();
+
+            // Iluminación
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            sunLight.position.set(25, 35, 20);
+            sunLight.castShadow = true;
+            sunLight.shadow.camera.left = -40;
+            sunLight.shadow.camera.right = 40;
+            sunLight.shadow.camera.top = 40;
+            sunLight.shadow.camera.bottom = -40;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            scene.add(sunLight);
+
+            const fillLight = new THREE.DirectionalLight(0xffd700, 0.3);
+            fillLight.position.set(-20, 20, -15);
+            scene.add(fillLight);
+
+            const poolLight = new THREE.PointLight(0x00bfff, 1, 50);
+            poolLight.position.set(0, 5, 0);
+            scene.add(poolLight);
+
+            // Construir el balneario
+            buildBalneario();
+
+            // Grid de referencia
+            const gridHelper = new THREE.GridHelper(70, 70, 0x555555, 0x333333);
+            gridHelper.position.y = -0.5;
+            scene.add(gridHelper);
+
+            // Animación
+            animate();
+        }
+
+        function buildBalneario() {
+            // DIMENSIONES DEL BALNEARIO
+            const totalWidth = 45;
+            const totalDepth = 40;
+            const wallHeight = 6;
+
+            // PISO PRINCIPAL
+            const floorGeometry = new THREE.BoxGeometry(totalWidth, 0.8, totalDepth);
+            const floorMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xe0e0e0,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.position.y = -0.4;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // PAREDES EXTERIORES
+            const wallColor = 0xa0826d;
+            
+            // Pared trasera (norte - zona de salida)
+            createWall(totalWidth, wallHeight, 0.4, 0, wallHeight/2, -totalDepth/2, wallColor);
+            addText(0, wallHeight + 1.5, -totalDepth/2 + 1, '← SALIDA (Trasera Centro)', 0x00ff00);
+            
+            // Puerta de salida trasera
+            createDoor(3.5, 4.5, 0.4, 0, 2.25, -totalDepth/2, 0x654321);
+            
+            // Pared izquierda
+            createWall(0.4, wallHeight, totalDepth, -totalWidth/2, wallHeight/2, 0, wallColor);
+            
+            // Pared derecha
+            createWall(0.4, wallHeight, totalDepth, totalWidth/2, wallHeight/2, 0, wallColor);
+            
+            // Pared frontal (sur - entrada) dividida en secciones
+            const frontZ = totalDepth/2;
+            
+            // Sección izquierda de pared frontal
+            createWall(8, wallHeight, 0.4, -totalWidth/2 + 4, wallHeight/2, frontZ, wallColor);
+            
+            // Sección derecha de pared frontal
+            createWall(8, wallHeight, 0.4, totalWidth/2 - 4, wallHeight/2, frontZ, wallColor);
+            
+            // Sección superior central
+            createWall(totalWidth - 16, 2, 0.4, 0, wallHeight - 1, frontZ, wallColor);
+
+            // ====== LADO FRONTAL DERECHO (ESQUINA DERECHA) ======
+            // Puerta principal de ingreso
+            const entranceDoorX = totalWidth/2 - 6;
+            createDoor(3, 5, 0.4, entranceDoorX, 2.5, frontZ, 0x8b4513);
+            addText(entranceDoorX, wallHeight + 1, frontZ - 1.5, 'PUERTA PRINCIPAL', 0x00ff00);
+            createArrow(entranceDoorX, 0.5, frontZ - 3, 0xff0000);
+            
+            // Ventanilla de venta de boletos (junto a la puerta)
+            const ticketX = totalWidth/2 - 12;
+            createRoom(4, wallHeight, 4, ticketX, wallHeight/2, frontZ - 2, 0x90ee90);
+            createWindow(ticketX, 2.5, frontZ - 0.2, 2, 1.5, 0.1);
+            addText(ticketX, wallHeight + 1, frontZ - 2, 'VENTANILLA\nBOLETOS', 0xffff00);
+
+            // ====== ZONA FRONTAL CENTRO (3 ACCESOS) ======
+            const centerFrontZ = frontZ - 8;
+            const spacing = 10;
+            
+            // 1. VESTIDOR DE DAMAS (Izquierda)
+            const damasX = -spacing;
+            createRoom(6, wallHeight, 7, damasX, wallHeight/2, centerFrontZ, 0xffb6c1);
+            createDoor(2.5, 4, 0.3, damasX, 2, centerFrontZ + 3.5, 0x654321);
+            addText(damasX, wallHeight + 1.5, centerFrontZ, 'VESTIDOR\nDAMAS', 0xff1493);
+            addSymbol(damasX, wallHeight + 0.5, centerFrontZ + 4, '♀', 0xff1493);
+            
+            // 2. SAUNA MIXTO (Centro)
+            createRoom(6, wallHeight, 7, 0, wallHeight/2, centerFrontZ, 0xff6b6b);
+            createDoor(2.5, 4, 0.3, 0, 2, centerFrontZ + 3.5, 0x654321);
+            addText(0, wallHeight + 1.5, centerFrontZ, 'SAUNA\nMIXTO', 0xff4500);
+            
+            // 3. VESTIDOR DE VARONES (Derecha)
+            const varonesX = spacing;
+            createRoom(6, wallHeight, 7, varonesX, wallHeight/2, centerFrontZ, 0x87ceeb);
+            createDoor(2.5, 4, 0.3, varonesX, 2, centerFrontZ + 3.5, 0x654321);
+            addText(varonesX, wallHeight + 1.5, centerFrontZ, 'VESTIDOR\nVARONES', 0x1e90ff);
+            addSymbol(varonesX, wallHeight + 0.5, centerFrontZ + 4, '♂', 0x1e90ff);
+
+            // ====== LADO FRONTAL IZQUIERDO (ESQUINA IZQUIERDA) ======
+            // Tienda de productos y alimentos
+            const storeX = -totalWidth/2 + 6;
+            const storeZ = frontZ - 5;
+            createRoom(8, wallHeight, 8, storeX, wallHeight/2, storeZ, 0xffd700);
+            createDoor(2.5, 4, 0.3, storeX + 4, 2, storeZ, 0x654321);
+            addText(storeX, wallHeight + 1.5, storeZ, 'TIENDA\nProductos y Alimentos', 0xff8c00);
+            
+            // Estanterías en la tienda
+            createShelf(storeX - 2, 2, storeZ - 2);
+            createShelf(storeX + 2, 2, storeZ - 2);
+            createShelf(storeX - 2, 2, storeZ + 2);
+
+            // ====== ZONA CENTRAL: PISCINA PRINCIPAL ======
+            const poolWidth = 18;
+            const poolDepth = 2;
+            const poolLength = 16;
+            const poolX = 0;
+            const poolZ = 2;
+            
+            // Borde de la piscina
+            const borderGeometry = new THREE.BoxGeometry(poolWidth + 1, 0.4, poolLength + 1);
+            const borderMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xbdbdbd,
+                roughness: 0.6
+            });
+            const border = new THREE.Mesh(borderGeometry, borderMaterial);
+            border.position.set(poolX, 0.2, poolZ);
+            border.receiveShadow = true;
+            border.castShadow = true;
+            scene.add(border);
+
+            // Agua de la piscina
+            const waterGeometry = new THREE.BoxGeometry(poolWidth, poolDepth, poolLength);
+            const waterMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x00bfff,
+                transparent: true,
+                opacity: 0.75,
+                roughness: 0.1,
+                metalness: 0.3
+            });
+            mainPool = new THREE.Mesh(waterGeometry, waterMaterial);
+            mainPool.position.set(poolX, -poolDepth/2, poolZ);
+            scene.add(mainPool);
+            
+            addText(poolX, 5, poolZ, 'PISCINA PRINCIPAL', 0x00ffff);
+
+            // Pasillos alrededor de la piscina
+            createWalkway(poolWidth + 6, 0.2, 3, poolX, 0.1, poolZ + poolLength/2 + 2, 0xd4a574);
+            createWalkway(poolWidth + 6, 0.2, 3, poolX, 0.1, poolZ - poolLength/2 - 2, 0xd4a574);
+            createWalkway(3, 0.2, poolLength, poolX + poolWidth/2 + 2, 0.1, poolZ, 0xd4a574);
+            createWalkway(3, 0.2, poolLength, poolX - poolWidth/2 - 2, 0.1, poolZ, 0xd4a574);
+
+            // Escaleras de acceso a la piscina
+            createPoolStairs(poolX, 0, poolZ + poolLength/2 - 2);
+            createPoolStairs(poolX, 0, poolZ - poolLength/2 + 2);
+
+            
+
+            // Vigas del techo
+            for (let i = -3; i <= 3; i++) {
+                createBeam(1, 0.4, totalDepth, i * 6, wallHeight, 0, 0x4a4a4a);
+            }
+        }
+
+        function createWall(width, height, depth, x, y, z, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: color,
+                roughness: 0.8
+            });
+            const wall = new THREE.Mesh(geometry, material);
+            wall.position.set(x, y, z);
+            wall.castShadow = true;
+            wall.receiveShadow = true;
+            scene.add(wall);
+            return wall;
+        }
+
+        function createRoom(width, height, depth, x, y, z, color) {
+            const wallThickness = 0.3;
+            
+            createWall(width, height, wallThickness, x, y, z - depth/2, color);
+            createWall(width, height, wallThickness, x, y, z + depth/2, color);
+            createWall(wallThickness, height, depth, x - width/2, y, z, color);
+            createWall(wallThickness, height, depth, x + width/2, y, z, color);
+
+            const floorGeometry = new THREE.BoxGeometry(width - wallThickness, 0.2, depth - wallThickness);
+            const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xd4a574 });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.position.set(x, 0.1, z);
+            floor.receiveShadow = true;
+            scene.add(floor);
+        }
+
+        function createDoor(width, height, depth, x, y, z, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: color,
+                roughness: 0.6
+            });
+            const door = new THREE.Mesh(geometry, material);
+            door.position.set(x, y, z);
+            door.castShadow = true;
+            scene.add(door);
+
+            // Manija de puerta
+            const handleGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+            const handleMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffd700,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+            const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.position.set(x + width/3, y, z + depth);
+            scene.add(handle);
+        }
+
+        function createWindow(x, y, z, width, height, depth) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: 0x87ceeb,
+                transparent: true,
+                opacity: 0.4,
+                metalness: 0.5,
+                roughness: 0.1
+            });
+            const window = new THREE.Mesh(geometry, material);
+            window.position.set(x, y, z);
+            scene.add(window);
+        }
+
+        function createShelf(x, y, z) {
+            const geometry = new THREE.BoxGeometry(1.5, 3, 0.5);
+            const material = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+            const shelf = new THREE.Mesh(geometry, material);
+            shelf.position.set(x, y, z);
+            shelf.castShadow = true;
+            scene.add(shelf);
+        }
+
+        function createWalkway(width, height, depth, x, y, z, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: color,
+                roughness: 0.7
+            });
+            const walkway = new THREE.Mesh(geometry, material);
+            walkway.position.set(x, y, z);
+            walkway.receiveShadow = true;
+            scene.add(walkway);
+        }
+
+        function createPoolStairs(x, y, z) {
+            for (let i = 0; i < 4; i++) {
+                const geometry = new THREE.BoxGeometry(2, 0.3, 0.5);
+                const material = new THREE.MeshStandardMaterial({ color: 0x9e9e9e });
+                const step = new THREE.Mesh(geometry, material);
+                step.position.set(x, y - i * 0.3, z + i * 0.3);
+                step.castShadow = true;
+                step.receiveShadow = true;
+                scene.add(step);
+            }
+        }
+
+        function createBeam(width, height, depth, x, y, z, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color: color });
+            const beam = new THREE.Mesh(geometry, material);
+            beam.position.set(x, y, z);
+            beam.castShadow = true;
+            scene.add(beam);
+        }
+
+        function createArrow(x, y, z, color) {
+            const geometry = new THREE.ConeGeometry(0.5, 1, 4);
+            const material = new THREE.MeshStandardMaterial({ color: color });
+            const arrow = new THREE.Mesh(geometry, material);
+            arrow.position.set(x, y, z);
+            arrow.rotation.x = Math.PI;
+            scene.add(arrow);
+        }
+
+        function addText(x, y, z, text, color = 0xffffff) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 512;
+            canvas.height = 256;
+            
+            context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            context.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
+            context.font = 'bold 32px Arial';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            
+            const lines = text.split('\n');
+            const lineHeight = 40;
+            const startY = (canvas.height - (lines.length - 1) * lineHeight) / 2;
+            
+            lines.forEach((line, i) => {
+                context.fillText(line, canvas.width / 2, startY + (i * lineHeight));
+            });
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(material);
+            sprite.position.set(x, y, z);
+            sprite.scale.set(6, 3, 1);
+            scene.add(sprite);
+        }
+
+        function addSymbol(x, y, z, symbol, color = 0xffffff) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 128;
+            canvas.height = 128;
+            
+            context.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
+            context.font = 'bold 80px Arial';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(symbol, 64, 64);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(material);
+            sprite.position.set(x, y, z);
+            sprite.scale.set(2, 2, 1);
+            scene.add(sprite);
+        }
+
+        function setupCameraControls() {
+            let isDragging = false;
+            let isRightDragging = false;
+            let previousMouse = { x: 0, y: 0 };
+            let rotation = { x: 0.4, y: 0.7 };
+            let distance = 60;
+            let target = new THREE.Vector3(0, 2, 0);
+
+            function updateCamera() {
+                const x = distance * Math.sin(rotation.y) * Math.cos(rotation.x);
+                const y = distance * Math.sin(rotation.x);
+                const z = distance * Math.cos(rotation.y) * Math.cos(rotation.x);
+                
+                camera.position.set(target.x + x, target.y + y, target.z + z);
+                camera.lookAt(target);
+            }
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                if (e.button === 0) isDragging = true;
+                if (e.button === 2) isRightDragging = true;
+                previousMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                const deltaX = e.clientX - previousMouse.x;
+                const deltaY = e.clientY - previousMouse.y;
+
+                if (isDragging) {
+                    rotation.y += deltaX * 0.01;
+                    rotation.x -= deltaY * 0.01;
+                    rotation.x = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotation.x));
+                    updateCamera();
+                }
+
+                if (isRightDragging) {
+                    const moveSpeed = 0.05;
+                    const right = new THREE.Vector3();
+                    const up = new THREE.Vector3(0, 1, 0);
+                    camera.getWorldDirection(right);
+                    right.cross(up).normalize();
+                    
+                    target.add(right.multiplyScalar(-deltaX * moveSpeed));
+                    target.y += deltaY * moveSpeed;
+                    updateCamera();
+                }
+
+                previousMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+                isRightDragging = false;
+            });
+
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                distance += e.deltaY * 0.05;
+                distance = Math.max(15, Math.min(100, distance));
+                updateCamera();
+            });
+
+            renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+
+            updateCamera();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            waterAnimationTime += 0.005;
+            if (mainPool) {
+                mainPool.position.y = -1 + Math.sin(waterAnimationTime) * 0.08;
+                mainPool.material.opacity = 0.75 + Math.sin(waterAnimationTime * 2) * 0.05;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balnearios de Uncía - Bienvenidos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a6ba0, #0d4f8c);
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Primera ventana - Pantalla de bienvenida */
+        .welcome-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Fondo animado con partículas */
+        .background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Ondas de agua animadas */
+        .waves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            z-index: 2;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="%23ffffff"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="%23ffffff"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23ffffff"/></svg>');
+            background-size: cover;
+            animation: wave 10s linear infinite;
+        }
+
+        @keyframes wave {
+            0% {
+                background-position-x: 0;
+            }
+            100% {
+                background-position-x: 1200px;
+            }
+        }
+
+        /* Contenedor principal */
+        .container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Título principal */
+        .welcome-text {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #0d4f8c;
+            }
+            to {
+                text-shadow: 0 0 20px #fff, 0 0 30px #4facfe, 0 0 40px #0d4f8c;
+            }
+        }
+
+        .welcome-text:hover {
+            transform: scale(1.05);
+            color: #a8e6ff;
+        }
+
+        /* Subtítulo */
+        .subtitle {
+            font-size: 1.5rem;
+            color: #e0f7ff;
+            margin-bottom: 40px;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        /* Indicador de clic */
+        .click-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffffff;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .click-indicator i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Controles de audio */
+        .audio-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+        }
+
+        .audio-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .audio-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .volume-control {
+            width: 100px;
+            height: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .volume-control::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Segunda ventana - Entorno 3D */
+        .scene-3d {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .scene-3d.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Canvas 3D */
+        .fondo-3d {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Menú principal */
+        .menu-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-btn i {
+            font-size: 1.3rem;
+        }
+
+        /* Paneles de información */
+        .info-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 20;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-content {
+            background: linear-gradient(135deg, #0a1929, #001e3c);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .panel-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #64b5f6;
+        }
+
+        .panel-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Galería */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .gallery-item {
+            border-radius: 10px;
+            overflow: hidden;
+            height: 150px;
+            position: relative;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Mapa */
+        .map-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            position: relative;
+            background: #0a1929;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .map-placeholder {
+            text-align: center;
+            color: white;
+        }
+
+        /* Contactos */
+        .contact-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .social-link {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+        }
+
+        /* Controles de cámara */
+        .camera-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: rgba(100, 181, 246, 0.5);
+        }
+
+        /* Indicador de carga */
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Instrucciones de movimiento */
+        .movement-instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .movement-instructions.active {
+            display: block;
+        }
+
+        .movement-instructions h4 {
+            margin-bottom: 10px;
+            color: #64b5f6;
+        }
+
+        .movement-instructions p {
+            margin-bottom: 5px;
+        }
+
+        /* Indicador de velocidad */
+        .speed-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .speed-indicator.active {
+            display: block;
+        }
+
+        .speed-indicator.running {
+            background: rgba(255, 165, 0, 0.7);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .welcome-text {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .audio-controls {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .menu-container {
+                top: 10px;
+                left: 10px;
+                gap: 10px;
+            }
+
+            .menu-btn {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+
+            .panel-content {
+                padding: 20px;
+            }
+
+            .panel-title {
+                font-size: 1.5rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Primera ventana - Pantalla de bienvenida -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <!-- Fondo animado -->
+        <div class="background-container" id="particles"></div>
+        
+        <!-- Ondas de agua -->
+        <div class="waves"></div>
+        
+        <!-- Contenido principal -->
+        <div class="container">
+            <h1 class="welcome-text" id="welcomeText">Bienvenidos a nuestra página Balnearios de Uncía</h1>
+            <p class="subtitle">Descubre un paraíso natural donde el agua y la tranquilidad se encuentran para ofrecerte una experiencia inolvidable.</p>
+            
+            <div class="click-indicator">
+                <i class="fas fa-mouse-pointer"></i>
+                <p>Haz clic para continuar</p>
+            </div>
+        </div>
+        
+        <!-- Controles de audio -->
+        <div class="audio-controls">
+            <button class="audio-btn" id="playPauseBtn">
+                <i class="fas fa-play"></i>
+            </button>
+            <input type="range" class="volume-control" id="volumeControl" min="0" max="100" value="50">
+        </div>
+        
+        <!-- Elemento de audio -->
+        <audio id="backgroundAudio" loop>
+            <source src="https://example.com/audio/balneario-nature-sound.mp3" type="audio/mpeg">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+    </div>
+
+    <!-- Segunda ventana - Entorno 3D -->
+    <div class="scene-3d" id="scene3d">
+        <!-- Canvas 3D -->
+        <canvas class="fondo-3d"></canvas>
+
+        <!-- Indicador de carga -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Cargando modelo 3D...</p>
+        </div>
+
+        <!-- Indicador de velocidad -->
+        <div class="speed-indicator" id="speedIndicator">
+            <i class="fas fa-walking"></i> Velocidad: Normal
+        </div>
+
+        <!-- Menú principal -->
+        <div class="menu-container">
+            <button class="menu-btn" id="infoBtn">
+                <i class="fas fa-info-circle"></i>
+                <span>Información</span>
+            </button>
+            <button class="menu-btn" id="galleryBtn">
+                <i class="fas fa-images"></i>
+                <span>Galería</span>
+            </button>
+            <button class="menu-btn" id="locationBtn">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Ubicación</span>
+            </button>
+            <button class="menu-btn" id="contactBtn">
+                <i class="fas fa-phone-alt"></i>
+                <span>Contactos</span>
+            </button>
+        </div>
+
+        <!-- Controles de cámara -->
+        <div class="camera-controls">
+            <button class="control-btn" id="resetCamera" title="Reiniciar vista">
+                <i class="fas fa-home"></i>
+            </button>
+            <button class="control-btn" id="autoRotate" title="Rotación automática">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button class="control-btn" id="walkMode" title="Modo caminar">
+                <i class="fas fa-walking"></i>
+            </button>
+        </div>
+
+        <!-- Instrucciones de movimiento -->
+        <div class="movement-instructions" id="movementInstructions">
+            <h4>Controles de movimiento:</h4>
+            <p><strong>W/A/S/D</strong> o <strong>Flechas</strong> - Moverse</p>
+            <p><strong>Mouse</strong> - Mirar alrededor</p>
+            <p><strong>Shift</strong> - Correr (más rápido)</p>
+            <p><strong>Espacio</strong> - Saltar</p>
+            <p><strong>ESC</strong> - Salir del modo caminar</p>
+        </div>
+
+        <!-- Panel de Información -->
+        <div class="info-panel" id="infoPanel">
+            <div class="panel-content">
+                <button class="close-btn" id="closeInfo">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="panel-title">Información del Balneario</h2>
+                <div class="panel-text">
+                    <p><strong>Balnearios de Uncía</strong> es un paraíso natural situado en la región de Potosí, Bolivia. Conocido por sus aguas termales curativas y su entorno natural impresionante, ofrece una experiencia única de relajación y bienestar.</p>
+                    
+                    <h3 style="margin-top: 20px; color: #64b5f6;">Historia</h3>
+                    <p>Los Balnearios de Uncía tienen una rica historia que se remonta a la época colonial. Las aguas termales fueron descubiertas por los mineros de la región, quienes notaron sus propiedades curativas para aliviar el dolor muscular y las enfermedades de la piel.</p>
+                    
+                    <h3 style="margin-top: 20px; color: #64b5f6;">Servicios</h3>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>Piscinas termales con diferentes temperaturas</li>
+                        <li>Saunas y baños de vapor</li>
+                        <li>Spa con tratamientos de relajación</li>
+                        <li>Masajes terapéuticos</li>
+                        <li>Restaurantes con gastronomía local</li>
+                        <li>Áreas de descanso y jardines</li>
+                        <li>Actividades recreativas para toda la familia</li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 20px; color: #64b5f6;">Propiedades del Agua</h3>
+                    <p>Las aguas termales de Uncía contienen minerales como azufre, calcio, magnesio y sodio, que tienen propiedades terapéuticas para diversas afecciones como reumatismo, artritis, problemas de piel y estrés.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Galería -->
+        <div class="info-panel" id="galleryPanel">
+            <div class="panel-content">
+                <button class="close-btn" id="closeGallery">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="panel-title">Galería del Balneario</h2>
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Piscina termal">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Sauna">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1596178065887-11989769699a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Jardines">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1596178065887-11989769699a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Área de descanso">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Spa">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Baños termales">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Ubicación -->
+        <div class="info-panel" id="locationPanel">
+            <div class="panel-content">
+                <button class="close-btn" id="closeLocation">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="panel-title">Ubicación del Balneario</h2>
+                <div class="panel-text">
+                    <p><strong>Dirección:</strong> Av. Principal s/n, Uncía, Potosí, Bolivia</p>
+                    <p><strong>Horario de atención:</strong> Lunes a Domingo de 8:00 a 18:00</p>
+                    <p><strong>Temporada:</strong> Abierto todo el año</p>
+                </div>
+                <div class="map-container">
+                    <div class="map-placeholder">
+                        <i class="fas fa-map-marked-alt" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>Mapa interactivo del Balneario de Uncía</p>
+                        <p style="margin-top: 10px; font-size: 0.9rem;">(Aquí se integraría un mapa 3D interactivo)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Contactos -->
+        <div class="info-panel" id="contactPanel">
+            <div class="panel-content">
+                <button class="close-btn" id="closeContact">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="panel-title">Contactos</h2>
+                <ul class="contact-list">
+                    <li class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div>
+                            <h3>Teléfono</h3>
+                            <p>+591 2 1234567</p>
+                        </div>
+                    </li>
+                    <li class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h3>Email</h3>
+                            <p>info@balneariosuncia.com</p>
+                        </div>
+                    </li>
+                    <li class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div>
+                            <h3>WhatsApp</h3>
+                            <p>+591 71234567</p>
+                        </div>
+                    </li>
+                    <li class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h3>Horario</h3>
+                            <p>Lunes a Domingo: 8:00 - 18:00</p>
+                        </div>
+                    </li>
+                </ul>
+                
+                <h3 style="margin-top: 25px; text-align: center; color: #64b5f6;">Síguenos en redes sociales</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    
+    <script>
+        // Variables globales
+        let scene, camera, renderer, controls;
+        let ladrilloTexture, calaminaTexture;
+        let isWalkMode = false;
+        let moveForward = false;
+        let moveBackward = false;
+        let moveLeft = false;
+        let moveRight = false;
+        let canJump = false;
+        let isRunning = false;
+        let prevTime = performance.now();
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        let raycaster;
+        let moveSpeed = 15.0; // Velocidad normal aumentada
+        let runSpeed = 30.0; // Velocidad al correr
+        let isLocked = false;
+        let euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        let PI_2 = Math.PI / 2;
+ 
+        // Función para crear planos (paredes, suelo, etc.)
+        function crearPlano(x, y, ancho, alto, color, z = 0) {
+          const geo = new THREE.PlaneGeometry(ancho, alto);
+          const mat = new THREE.MeshStandardMaterial({ color, side: THREE.DoubleSide });
+          const plano = new THREE.Mesh(geo, mat);
+          plano.position.set(x, y, z);
+          scene.add(plano);
+        }
+
+        // funcion crear primer triangulo
+        function crearTrianguloConGrosor(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1.5);        // vértice superior
+          shape.lineTo(-3, 0);       // vértice inferior izquierdo
+          shape.lineTo(3, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1.5);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -3,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Segundo triangulo
+        function crearTrianguloConGrosor1(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 3.5);        // vértice superior
+          shape.lineTo(-7, 0);       // vértice inferior izquierdo
+          shape.lineTo(6, 0);        // vértice inferior derecho
+          shape.lineTo(0, 3.5);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -15,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+  
+        // Tercer triangulo pequeño
+        function crearTrianguloConGrosor2(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(-2, 0);       // vértice inferior izquierdo
+          shape.lineTo(0.1, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -15,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear cuarto triangulo
+        function crearTrianguloConGrosor3(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(0, 0);       // vértice inferior izquierdo
+          shape.lineTo(4, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -15,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear quinto triangulo
+        function crearTrianguloConGrosor4(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(-5, 0);       // vértice inferior izquierdo
+          shape.lineTo(0, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -3,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear sexto triangulo
+        function crearTrianguloConGrosor5(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(-1.5, 0);       // vértice inferior izquierdo
+          shape.lineTo(2, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -13,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear septimo triangulo
+        function crearTrianguloConGrosor6(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(-1.5, 0);       // vértice inferior izquierdo
+          shape.lineTo(2, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -3,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear octavo triangulo
+        function crearTrianguloConGrosor8(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(-2, 0);       // vértice inferior izquierdo
+          shape.lineTo(3.5, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -3,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear noveno triangulo
+        function crearTrianguloConGrosor9(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(-2, 0);       // vértice inferior izquierdo
+          shape.lineTo(2, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -5,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear decimo triangulo
+        function crearTrianguloConGrosor10(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 2.5);        // vértice superior
+          shape.lineTo(-5.5, 0);       // vértice inferior izquierdo
+          shape.lineTo(5.5, 0);        // vértice inferior derecho
+          shape.lineTo(0, 2.5);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -5,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear decimo primer triangulo
+        function crearTrianguloConGrosor11(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(-2.5, 0);       // vértice inferior izquierdo
+          shape.lineTo(2, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -6,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+        
+        // Función crear decimo segundo triangulo
+        function crearTrianguloConGrosor12(x, y, z, colorHex) {
+          // 1. Definir el shape del triángulo (forma 2D)
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 1);        // vértice superior
+          shape.lineTo(-3, 0);       // vértice inferior izquierdo
+          shape.lineTo(3, 0);        // vértice inferior derecho
+          shape.lineTo(0, 1);        // cerrar el triángulo
+
+          // 2. Configurar la extrusión para dar grosor
+          const extrudeSettings = {
+            depth: -5,                 // grosor en Z
+            bevelEnabled: false
+          };
+
+          // 3. Crear geometría 3D extruida
+          const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          const material = new THREE.MeshStandardMaterial({ color: colorHex });
+          const triangulo3D = new THREE.Mesh(geometry, material);
+
+          // 4. Posicionar el triángulo
+          triangulo3D.position.set(x, y, z);
+          scene.add(triangulo3D);
+        }
+
+        // Función para crear ventanas con texturas
+        function crearVentana(x, y, z, ancho = 0.8, alto = 1.2, profundidad = 0.1) {
+          const textureLoader = new THREE.TextureLoader();
+
+          // Textura para el marco (metal)
+          const maderaTexture = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpdyKK-v_MHc4_ioxZVGZ6g0Sd1ywy26tESwAh2mzktLL79Ri4kMzjgp2ASvk9bEYEe10&usqp=CAU');
+          maderaTexture.wrapS = THREE.RepeatWrapping;
+          maderaTexture.wrapT = THREE.RepeatWrapping;
+          maderaTexture.repeat.set(1, 1);
+
+          const marcoGeometria = new THREE.BoxGeometry(ancho + 0.1, alto + 0.1, profundidad + 0.05);
+          const marcoMaterial = new THREE.MeshStandardMaterial({ map: maderaTexture });
+          const marco = new THREE.Mesh(marcoGeometria, marcoMaterial);
+          marco.position.set(x, y, z);
+
+          // Textura para el cristal (efecto vidrio con reflejo ligero)
+          const cristalTexture = textureLoader.load('https://www.shutterstock.com/image-vector/mirror-surface-background-transparent-glass-260nw-2567439943.jpg'); // puede ser una textura sutil de vidrio
+          cristalTexture.wrapS = THREE.RepeatWrapping;
+          cristalTexture.wrapT = THREE.RepeatWrapping;
+
+          const cristalGeometria = new THREE.BoxGeometry(ancho, alto, profundidad / 2);
+          const cristalMaterial = new THREE.MeshStandardMaterial({ 
+            map: cristalTexture,
+            color: 0x87CEEB, // azul claro
+            transparent: true,
+            opacity: 0.6,
+            metalness: 0.3,
+            roughness: 0.05
+          });
+          const cristal = new THREE.Mesh(cristalGeometria, cristalMaterial);
+          cristal.position.set(x, y, z + profundidad / 4);
+
+          scene.add(marco);
+          scene.add(cristal);
+
+          return { marco, cristal };
+        }
+
+        // Función para crear puertas con texturas
+        function crearPuerta(x, y, z, ancho = 1.0, alto = 2.0, profundidad = 0.1) {
+          const textureLoader = new THREE.TextureLoader();
+
+          // Textura de madera
+          const maderaTexture = textureLoader.load('https://thumbs.dreamstime.com/b/textura-de-la-puerta-color-gris-para-representaci%C3%B3n-d-interior-moderna-presentaci%C3%B3n-vista-frontal-163024366.jpg');
+          maderaTexture.wrapS = THREE.RepeatWrapping;
+          maderaTexture.wrapT = THREE.RepeatWrapping;
+          maderaTexture.repeat.set(1, 1);
+
+          // Marco de la puerta (con textura de madera)
+          const marcoGeometria = new THREE.BoxGeometry(ancho + 0.1, alto + 0.1, profundidad + 0.05);
+          const marcoMaterial = new THREE.MeshStandardMaterial({ map: maderaTexture });
+          const marco = new THREE.Mesh(marcoGeometria, marcoMaterial);
+          marco.position.set(x, y, z);
+
+          // Hoja de la puerta (también con textura de madera)
+          const hojaGeometria = new THREE.BoxGeometry(ancho, alto, profundidad / 2);
+          const hojaMaterial = new THREE.MeshStandardMaterial({ 
+            map: maderaTexture,
+            metalness: 0.2,
+            roughness: 0.8
+          });
+          const hoja = new THREE.Mesh(hojaGeometria, hojaMaterial);
+          hoja.position.set(x, y, z + profundidad / 4);
+
+          // Pomo de la puerta (dorado metálico)
+          const pomoGeometria = new THREE.SphereGeometry(0.05, 16, 16);
+          const pomoMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xFFD700, // dorado
+            metalness: 0.9,
+            roughness: 0.1
+          });
+          const pomo = new THREE.Mesh(pomoGeometria, pomoMaterial);
+          pomo.position.set(x + ancho / 3, y, z + profundidad / 2);
+
+          scene.add(marco);
+          scene.add(hoja);
+          scene.add(pomo);
+
+          return { marco, hoja, pomo };
+        }
+
+        // Función para crear puertas individuales
+        function crearPuertaindividual(x, y, z, ancho = 0.1, alto = 2.0, profundidad = 1) {
+          const textureLoader = new THREE.TextureLoader();
+
+          // Textura de madera
+          const maderaTexture = textureLoader.load('https://thumbs.dreamstime.com/b/textura-de-la-puerta-color-gris-para-representaci%C3%B3n-d-interior-moderna-presentaci%C3%B3n-vista-frontal-163024366.jpg');
+          maderaTexture.wrapS = THREE.RepeatWrapping;
+          maderaTexture.wrapT = THREE.RepeatWrapping;
+          maderaTexture.repeat.set(1, 1);
+
+          // Marco de la puerta (con textura de madera)
+          const marcoGeometria = new THREE.BoxGeometry(ancho + 0.05, alto + 0.1, profundidad + 0.1);
+          const marcoMaterial = new THREE.MeshStandardMaterial({ map: maderaTexture });
+          const marco = new THREE.Mesh(marcoGeometria, marcoMaterial);
+          marco.position.set(x, y, z);
+
+          // Hoja de la puerta (también con textura de madera)
+          const hojaGeometria = new THREE.BoxGeometry(ancho/2, alto, profundidad);
+          const hojaMaterial = new THREE.MeshStandardMaterial({ 
+            map: maderaTexture,
+            metalness: 0.2,
+            roughness: 0.8
+          });
+          const hoja = new THREE.Mesh(hojaGeometria, hojaMaterial);
+          hoja.position.set(x+ancho/4, y, z);
+
+          // Pomo de la puerta (dorado metálico)
+          const pomoGeometria = new THREE.SphereGeometry(0.1, 16, 14);
+          const pomoMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x000000, // negro
+            metalness: 0.1,
+            roughness: 0.9
+          });
+          const pomo = new THREE.Mesh(pomoGeometria, pomoMaterial);
+          pomo.position.set(x + ancho / 3, y, z + profundidad / 2);
+
+          scene.add(marco);
+          scene.add(hoja);
+          scene.add(pomo);
+
+          return { marco, hoja, pomo };
+        }
+
+        function init() {
+          // Crear la escena
+          scene = new THREE.Scene();
+          scene.background = new THREE.Color(0x000814); // Cielo oscuro
+          scene.fog = new THREE.Fog(0x000814, 10, 100); // Niebla para profundidad
+
+          // Obtener el canvas existente
+          const canvas = document.querySelector('.fondo-3d');
+          
+          // Crear la cámara (posición z lejos para ver todo)
+          camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+          camera.position.set(7, 10, 7); // vista en ángulo
+
+          // Crear el renderizador (dibujador 3D) usando el canvas existente
+          renderer = new THREE.WebGLRenderer({ 
+            canvas: canvas,
+            antialias: true 
+          });
+          renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+          renderer.shadowMap.enabled = true;
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+          // Controles de cámara con ratón (rotación, zoom, etc.)
+          controls = new THREE.OrbitControls(camera, renderer.domElement);
+          controls.enableDamping = true;        // suaviza el movimiento
+          controls.autoRotate = true;           // rotación automática
+          controls.autoRotateSpeed = 0.5;       // velocidad de rotación
+
+          // Luz ambiental general (más tenue para noche)
+          scene.add(new THREE.AmbientLight(0x404040, 0.5));
+
+          // Luz direccional como si fuera la luna
+          const moonLight = new THREE.DirectionalLight(0x4d79ff, 0.8);
+          moonLight.position.set(5, 15, 7);
+          moonLight.castShadow = true;
+          moonLight.shadow.mapSize.width = 2048;
+          moonLight.shadow.mapSize.height = 2048;
+          scene.add(moonLight);
+
+          // Luces puntuales en los edificios
+          const pointLight1 = new THREE.PointLight(0xffa500, 1, 15);
+          pointLight1.position.set(0, 3, 0);
+          pointLight1.castShadow = true;
+          scene.add(pointLight1);
+
+          const pointLight2 = new THREE.PointLight(0xffa500, 1, 15);
+          pointLight2.position.set(8, 3, -10);
+          pointLight2.castShadow = true;
+          scene.add(pointLight2);
+
+          const pointLight3 = new THREE.PointLight(0xffa500, 1, 15);
+          pointLight3.position.set(16, 3, -8);
+          pointLight3.castShadow = true;
+          scene.add(pointLight3);
+
+          // Cargar texturas
+          const textureLoader = new THREE.TextureLoader();
+          
+          // Textura de ladrillos para las paredes
+          ladrilloTexture = textureLoader.load('https://thumbs.dreamstime.com/b/textura-de-pared-ladrillo-color-menta-brillante-mamposter%C3%ADa-ligera-aguamarina-antigua-fondo-ancho-trabajo-tambor-pantalla-192085642.jpg');
+          ladrilloTexture.wrapS = THREE.RepeatWrapping;
+          ladrilloTexture.wrapT = THREE.RepeatWrapping;
+          ladrilloTexture.repeat.set(4, 4);
+          
+          // Textura de calamina azul para los techos
+          calaminaTexture = textureLoader.load('https://t3.ftcdn.net/jpg/00/48/43/70/360_F_48437038_Io6yxJDRMujf8GCfckmzMgikJbTRS3ja.jpg');
+          calaminaTexture.wrapS = THREE.RepeatWrapping;
+          calaminaTexture.wrapT = THREE.RepeatWrapping;
+          calaminaTexture.repeat.set(4, 4);
+          
+          // Crear materiales con las texturas
+          const matLadrillo = new THREE.MeshStandardMaterial({ map: ladrilloTexture });
+          const matCalamina = new THREE.MeshStandardMaterial({ map: calaminaTexture });
+
+          // Suelo con textura ajustada
+          const sueloTexture = textureLoader.load('https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80');
+          sueloTexture.wrapS = THREE.RepeatWrapping;
+          sueloTexture.wrapT = THREE.RepeatWrapping;
+          sueloTexture.repeat.set(20, 20);
+
+          const suelo = new THREE.Mesh(
+            new THREE.PlaneGeometry(100, 100),
+            new THREE.MeshStandardMaterial({ 
+              map: sueloTexture,
+              color: 0xFFFFFF,
+              roughness: 0.9,
+              metalness: 0.1
+            })
+          );
+          suelo.rotation.x = -Math.PI / 2;
+          suelo.position.set(0, -1, -20);
+          suelo.receiveShadow = true;
+          scene.add(suelo);
+
+          // Edificio central del balneario con textura de ladrillo
+          const edificioGeo = new THREE.BoxGeometry(6, 3, 3);
+          const edificio = new THREE.Mesh(edificioGeo, matLadrillo);
+          edificio.position.set(0, 0.5, 0);
+          edificio.castShadow = true;
+          scene.add(edificio);
+          
+          // Techo del edificio central con textura de calamina azul
+          const techoGeo = new THREE.BoxGeometry(6.2, 0.3, 3.2);
+          const techo = new THREE.Mesh(techoGeo, matCalamina);
+          techo.position.set(0, 2.15, 0);
+          techo.castShadow = true;
+          scene.add(techo);
+          
+          // Ventanas del edificio central
+          crearVentana(-1.5, 1, 1.55);
+          crearVentana(0, 1, 1.55);
+          crearVentana(1.5, 1, 1.55);
+          
+          // Edificio central atras del balneario piscina con textura de ladrillo
+          const edificioGeoatras = new THREE.BoxGeometry(15, 3, 15);
+          const edificio2 = new THREE.Mesh(edificioGeoatras, matLadrillo);
+          edificio2.position.set(-1.5, 0.5, -9);
+          edificio2.castShadow = true;
+          scene.add(edificio2);
+          
+          // Techo del edificio atras con textura de calamina azul
+          const techoAtrasGeo = new THREE.BoxGeometry(15.2, 0.3, 15.2);
+          const techoAtras = new THREE.Mesh(techoAtrasGeo, matCalamina);
+          techoAtras.position.set(-1.5, 2.15, -9);
+          techoAtras.castShadow = true;
+          scene.add(techoAtras);
+
+          // Parte central de arriba atras del balneario de la piscina con textura de ladrillo
+          const edificioGeoatrasSup = new THREE.BoxGeometry(13, 1, 15);
+          const edificioSup = new THREE.Mesh(edificioGeoatrasSup, matLadrillo);
+          edificioSup.position.set(-0.5, 2.5, -9);
+          edificioSup.castShadow = true;
+          scene.add(edificioSup);
+          
+          // Techo de la parte superior con textura de calamina azul
+          const techoSupGeo = new THREE.BoxGeometry(13.2, 0.3, 15.2);
+          const techoSup = new THREE.Mesh(techoSupGeo, matCalamina);
+          techoSup.position.set(-0.5, 3.15, -9);
+          techoSup.castShadow = true;
+          scene.add(techoSup);
+          
+          // Edificio central piso 2 del balneario con textura de ladrillo
+          const edificioGeopiso2 = new THREE.BoxGeometry(6, 3, 3);
+          const edificio3 = new THREE.Mesh(edificioGeopiso2, matLadrillo);
+          edificio3.position.set(0, 3, 0);
+          edificio3.castShadow = true;
+          scene.add(edificio3);
+          
+          // Techo del piso 2 con textura de calamina azul
+          const techoPiso2Geo = new THREE.BoxGeometry(6.2, 0.3, 3.2);
+          const techoPiso2 = new THREE.Mesh(techoPiso2Geo, matCalamina);
+          techoPiso2.position.set(0, 4.65, 0);
+          techoPiso2.castShadow = true;
+          scene.add(techoPiso2);
+          
+          // Ventanas del piso 2
+          crearVentana(-1.5, 3.5, 1.55);
+          crearVentana(0, 3.5, 1.55);
+          crearVentana(1.5, 3.5, 1.55);
+
+          // Edificio central balnerio (estructura a la izquierda) con textura de ladrillo
+          const edificioSauna = new THREE.BoxGeometry(3, 3, 3);
+          const sauna = new THREE.Mesh(edificioSauna, matLadrillo);
+          sauna.position.set(-4.5, 0.5, 0);
+          sauna.castShadow = true;
+          scene.add(sauna);
+          
+          // Techo de la sauna izquierda con textura de calamina azul
+          const techoSaunaIzqGeo = new THREE.BoxGeometry(3.2, 0.3, 3.2);
+          const techoSaunaIzq = new THREE.Mesh(techoSaunaIzqGeo, matCalamina);
+          techoSaunaIzq.position.set(-4.5, 2.15, 0);
+          techoSaunaIzq.castShadow = true;
+          scene.add(techoSaunaIzq);
+          
+          // Ventana de la sauna izquierda
+          crearVentana(-4.5, 1, 1.55);
+
+          // Edificio central balneario (estructura a la derecha) con textura de ladrillo
+          const edificioSaunad = new THREE.BoxGeometry(3, 3, 3);
+          const sauna2 = new THREE.Mesh(edificioSaunad, matLadrillo);
+          sauna2.position.set(4.5, 0.5, 0);
+          sauna2.castShadow = true;
+          scene.add(sauna2);
+
+          // Puerta derecha entrada de inicio
+          const texturepuerta = new THREE.TextureLoader();
+          const maderaTexture = texturepuerta.load('https://static.vecteezy.com/system/resources/thumbnails/002/523/044/small/modern-entrance-doors-to-retail-store-vector.jpg');
+          maderaTexture.wrapS = THREE.RepeatWrapping;
+          maderaTexture.wrapT = THREE.RepeatWrapping;
+          maderaTexture.repeat.set(1, 1);
+
+          // Puerta derecha balneario entrada con textura
+          const puertaDerecha = new THREE.BoxGeometry(0.1, 2.5, 2);
+          const puertaMaterial = new THREE.MeshStandardMaterial({ map: maderaTexture });
+          const puertaD = new THREE.Mesh(puertaDerecha, puertaMaterial);
+
+          puertaD.position.set(6, 0.2, -2.5);
+          puertaD.castShadow = true;
+          scene.add(puertaD);
+
+          // Crear puertas individuales
+          crearPuertaindividual(14.5, 0, -5.5);
+          crearPuertaindividual(14.5, 0, -7.5);
+          crearPuertaindividual(14.5, 0, -9.5);
+          crearPuertaindividual(14.5, 0, -11.5);
+          crearPuertaindividual(14.5, 0, -13.5);
+          crearPuertaindividual(14.5, 0, -15.5);
+          
+          // Techo de la sauna derecha con textura de calamina azul
+          const techoSaunaDerGeo = new THREE.BoxGeometry(3.2, 0.3, 3.2);
+          const techoSaunaDer = new THREE.Mesh(techoSaunaDerGeo, matCalamina);
+          techoSaunaDer.position.set(4.5, 2.15, 0);
+          techoSaunaDer.castShadow = true;
+          scene.add(techoSaunaDer);
+          
+          // Ventana de la sauna derecha
+          crearVentana(4.5, 1, 1.55);
+          
+          // Pilar ventanilla balneario (estructura a la derecha) con textura de ladrillo
+          const pilarventanilla = new THREE.BoxGeometry(0.2, 3, 0.2);
+          const pilar = new THREE.Mesh(pilarventanilla, matLadrillo);
+          pilar.position.set(9.9, 0.5, -1.6);
+          pilar.castShadow = true;
+          scene.add(pilar);
+          
+          // Edificio de la ventanilla(estructura a la derecha) con textura de ladrillo
+          const edificio4 = new THREE.BoxGeometry(4, 3, 13);
+          const casaventanilla = new THREE.Mesh(edificio4, matLadrillo);
+          casaventanilla.position.set(8, 0.5, -10);
+          casaventanilla.castShadow = true;
+          scene.add(casaventanilla);
+          
+          // Techo de la ventanilla con textura de calamina azul
+          const techoVentanillaGeo = new THREE.BoxGeometry(4.2, 0.3, 13.2);
+          const techoVentanilla = new THREE.Mesh(techoVentanillaGeo, matCalamina);
+          techoVentanilla.position.set(8, 2.15, -10);
+          techoVentanilla.castShadow = true;
+          scene.add(techoVentanilla);
+          
+          // Ventana de la ventanilla
+          crearVentana(7,0.8, -3.5);
+          
+          // Estructura Sauna al lado de la ventanilla(estructura a la derecha) con textura de ladrillo
+          const edificioSauna12 = new THREE.BoxGeometry(5, 3, 3);
+          const sauna12 = new THREE.Mesh(edificioSauna12, matLadrillo);
+          sauna12.position.set(15.5, 0.5, -2);
+          sauna12.castShadow = true;
+          scene.add(sauna12);
+          
+          // Techo de la sauna de piedra con textura de calamina azul
+          const techoPiedraGeo = new THREE.BoxGeometry(5.2, 0.3, 3.2);
+          const techoPiedra = new THREE.Mesh(techoPiedraGeo, matCalamina);
+          techoPiedra.position.set(15.5, 2.15, -2);
+          techoPiedra.castShadow = true;
+          scene.add(techoPiedra);
+          
+          // Puerta de la sauna de piedra
+          crearPuerta(14.5, 0, -0.5);
+         
+          // Edificio individuales (estructura a la derecha) con textura de ladrillo
+          const individuales = new THREE.BoxGeometry(3.5, 3, 10);
+          const individual = new THREE.Mesh(individuales, matLadrillo);
+          individual.position.set(16.25, 0.5, -8.5);
+          individual.castShadow = true;
+          scene.add(individual);
+          
+          // Techo de individuales con textura de calamina azul
+          const techoIndividualesGeo = new THREE.BoxGeometry(3.7, 0.3, 10.2);
+          const techoIndividuales = new THREE.Mesh(techoIndividualesGeo, matCalamina);
+          techoIndividuales.position.set(16.25, 2.15, -8.5);
+          techoIndividuales.castShadow = true;
+          scene.add(techoIndividuales);
+          
+          // Edificio saunas (estructura a la derecha al fondo) con textura de ladrillo
+          const edificioSaunas = new THREE.BoxGeometry(7, 3, 3);
+          const edSauna = new THREE.Mesh(edificioSaunas, matLadrillo);
+          edSauna.position.set(18, 0.5, -15);
+          edSauna.castShadow = true;
+          scene.add(edSauna);
+          
+          // Techo de saunas con textura de calamina azul
+          const techoSaunasGeo = new THREE.BoxGeometry(7.2, 0.3, 3.2);
+          const techoSaunas = new THREE.Mesh(techoSaunasGeo, matCalamina);
+          techoSaunas.position.set(18, 2.15, -15);
+          techoSaunas.castShadow = true;
+          scene.add(techoSaunas);
+          
+          // Puerta de las saunas
+          crearPuerta(20.5, 0, -16.5);
+          crearPuerta(0.5, 0, -16.5);
+          
+          // Edificio saunas (estructura a la derecha al fondo) con textura de ladrillo
+          const edificioSaunas2 = new THREE.BoxGeometry(4, 3, 3);
+          const edSauna2 = new THREE.Mesh(edificioSaunas2, matLadrillo);
+          edSauna2.position.set(19.5, 0.5, -21);
+          edSauna2.castShadow = true;
+          scene.add(edSauna2);
+          
+          // Techo de saunas2 con textura de calamina azul
+          const techoSaunas2Geo = new THREE.BoxGeometry(4.2, 0.3, 3.2);
+          const techoSaunas2 = new THREE.Mesh(techoSaunas2Geo, matCalamina);
+          techoSaunas2.position.set(19.5, 2.15, -21);
+          techoSaunas2.castShadow = true;
+          scene.add(techoSaunas2);
+          
+          // Puerta de saunas2
+          crearPuerta(17, 0, -22.5);
+          
+          // Edificio familiares (estructura a la derecha) con textura de ladrillo
+          const ediFamiliar = new THREE.BoxGeometry(4, 3, 5);
+          const familiar = new THREE.Mesh(ediFamiliar, matLadrillo);
+          familiar.position.set(18, 0.5, -25);
+          familiar.castShadow = true;
+          scene.add(familiar);
+          
+          // Techo de familiar con textura de calamina azul
+          const techoFamiliarGeo = new THREE.BoxGeometry(4.2, 0.3, 5.2);
+          const techoFamiliar = new THREE.Mesh(techoFamiliarGeo, matCalamina);
+          techoFamiliar.position.set(18, 2.15, -25);
+          techoFamiliar.castShadow = true;
+          scene.add(techoFamiliar);
+          
+          // Edificiocolorados (estructura a la derecha al fondo) con textura de ladrillo
+          const ediColorados = new THREE.BoxGeometry(11, 3, 5);
+          const colorados = new THREE.Mesh(ediColorados, matLadrillo);
+          colorados.position.set(13, 0.5, -30);
+          colorados.castShadow = true;
+          scene.add(colorados);
+          
+          // Techo de colorados con textura de calamina azul
+          const techoColoradosGeo = new THREE.BoxGeometry(11.2, 0.3, 5.2);
+          const techoColorados = new THREE.Mesh(techoColoradosGeo, matCalamina);
+          techoColorados.position.set(13, 2.15, -30);
+          techoColorados.castShadow = true;
+          scene.add(techoColorados);
+          
+          // Ventanas de colorados
+          crearVentana(9, 1, -27.5);
+          crearVentana(13, 1, -27.5);
+         
+          // Puerta de colorados
+          crearPuerta(11, 0, -27.5);
+          
+          // Edificio saunas al lado del colorado (estructura a la derecha al fondo) con textura de ladrillo
+          const ediSaunas = new THREE.BoxGeometry(6, 3, 5);
+          const coSauna = new THREE.Mesh(ediSaunas, matLadrillo);
+          coSauna.position.set(0, 0.5, -33);
+          coSauna.castShadow = true;
+          scene.add(coSauna);
+          
+          // Techo de coSauna con textura de calamina azul
+          const techoCoSaunaGeo = new THREE.BoxGeometry(6.2, 0.3, 5.2);
+          const techoCoSauna = new THREE.Mesh(techoCoSaunaGeo, matCalamina);
+          techoCoSauna.position.set(0, 2.15, -33);
+          techoCoSauna.castShadow = true;
+          scene.add(techoCoSauna);
+          
+          // Ventanas de coSauna
+          crearVentana(-2, 1, -30.5);
+          crearVentana(2, 1, -30.5);
+          
+          // Puerta de coSauna
+          crearPuerta(1, 0, -35.5);
+          crearPuerta(-1, 0, -35.5);
+          
+          // Edificio familiar al lado del colorado (estructura a la derecha al fondo) con textura de ladrillo
+          const edifamcol = new THREE.BoxGeometry(4.5, 3, 6);
+          const cofamiliar = new THREE.Mesh(edifamcol, matLadrillo);
+          cofamiliar.position.set(13, 0.5, -35.5);
+          cofamiliar.castShadow = true;
+          scene.add(cofamiliar);
+          
+          // Techo de cofamiliar con textura de calamina azul
+          const techoCofamiliarGeo = new THREE.BoxGeometry(4.7, 0.3, 6.2);
+          const techoCofamiliar = new THREE.Mesh(techoCofamiliarGeo, matCalamina);
+          techoCofamiliar.position.set(13, 2.15, -35.5);
+          techoCofamiliar.castShadow = true;
+          scene.add(techoCofamiliar);
+          
+          // Ventanas de cofamiliar
+          crearVentana(13, 1, -32.5);
+          crearVentana(13, 1, -38.5);
+
+          // Materiales
+          const matPlomo = new THREE.MeshStandardMaterial({
+            color: 0x606060,  // Plomo
+            roughness: 0.8,
+            metalness: 0.3
+          });
+
+          const matBlanco = new THREE.MeshStandardMaterial({
+            color: 0xffffff,  // Blanco puro
+            roughness: 0.6,
+            metalness: 0.1
+          });
+
+          // Grupo principal para toda la estructura
+          const estructuraCompleta = new THREE.Group();
+          estructuraCompleta.position.set(-4, 0, -24); // Posición base
+
+          // Puente
+          const puente = new THREE.Mesh(
+            new THREE.BoxGeometry(8, 0.3, 6),
+            matPlomo
+          );
+          puente.position.y = 0.75;
+          puente.castShadow = true;
+          estructuraCompleta.add(puente);
+
+          // Escalera de acceso
+          const escalera = new THREE.Group();
+          const baseEscalera = new THREE.Mesh(
+            new THREE.BoxGeometry(1.5, 0.2, 3),
+            matPlomo
+          );
+          baseEscalera.position.set(7, -1, 0);
+          escalera.add(baseEscalera);
+
+          const numEscalones = 8;
+          const alturaTotal = 2;
+          const alturaEscalon = alturaTotal / numEscalones;
+          const profundidadEscalon = 0.3;
+
+          for (let i = 0; i < numEscalones; i++) {
+            const escalon = new THREE.Mesh(
+              new THREE.BoxGeometry(profundidadEscalon, alturaEscalon, 2.8),
+              matPlomo
+            );
+            escalon.position.set(
+              6.2 - i * profundidadEscalon,
+              -1 + i * alturaEscalon,
+              0
+            );
+            escalon.castShadow = true;
+            escalera.add(escalon);
+          }
+          estructuraCompleta.add(escalera);
+
+          // Quiosco sobre el puente
+          const quiosco = new THREE.Group();
+          quiosco.position.set(0, 0.5, 0);
+
+          // Columnas blancas del quiosco
+          const numColumnas = 8;
+          const radioColumnas = 2.3;
+          const alturaColumnas = 2.5;
+          const grosorColumna = 0.15;
+
+          for (let i = 0; i < numColumnas; i++) {
+            const angulo = (i / numColumnas) * Math.PI * 2;
+            const x = Math.cos(angulo) * radioColumnas;
+            const z = Math.sin(angulo) * radioColumnas;
+
+            const columna = new THREE.Mesh(
+              new THREE.CylinderGeometry(grosorColumna, grosorColumna, alturaColumnas, 8),
+              matBlanco
+            );
+            columna.position.set(x, alturaColumnas / 2, z);
+            columna.castShadow = true;
+            quiosco.add(columna);
+          }
+
+          // Techo blanco del quiosco
+          const techoQuiosco = new THREE.Mesh(
+            new THREE.ConeGeometry(4, 1, 8),
+            matCalamina
+          );
+          techoQuiosco.position.y = alturaColumnas;
+          techoQuiosco.castShadow = true;
+          quiosco.add(techoQuiosco);
+
+          estructuraCompleta.add(quiosco);
+
+          // TEXTURA de la mina desde una URL
+          const texturaMina = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsQZys5HwVYkqhI1lOxyran0Ib7RIk8ZDXyw&s');
+
+          // Material con textura
+          const matMina = new THREE.MeshStandardMaterial({
+            map: texturaMina,
+            roughness: 0.8,
+            metalness: 0.2
+          });
+
+          // Mina
+          const mina = new THREE.Group();
+
+          // Forma semicircular del túnel
+          const semitunelShape = new THREE.Shape();
+          semitunelShape.moveTo(0, -6);
+          semitunelShape.absarc(0, 0, 6, -Math.PI / 64, Math.PI / 2, false);
+          semitunelShape.lineTo(0, 0);
+
+          // Configuración de extrusión
+          const extrudeSettings = {
+            depth: 5,
+            bevelEnabled: false
+          };
+
+          // Geometría del túnel
+          const semitunelGeometry = new THREE.ExtrudeGeometry(semitunelShape, extrudeSettings);
+          semitunelGeometry.rotateZ(Math.PI / 2);
+
+          // Malla con textura
+          const tunelMina = new THREE.Mesh(semitunelGeometry, matMina);
+          tunelMina.position.set(-4.2, -2, -2.5);
+          tunelMina.castShadow = true;
+          tunelMina.receiveShadow = true;
+
+          mina.add(tunelMina);
+
+          // Añadir la mina a la estructura general
+          estructuraCompleta.add(mina);
+
+          // Agregar toda la estructura a la escena
+          scene.add(estructuraCompleta);
+
+          // Llamada: crear el triángulo con grosor
+          crearTrianguloConGrosor(0, 4.51, 1.5, 0x0000FF);
+          crearTrianguloConGrosor1(0, 3.05, -1.49, 0x0000FF);
+          crearTrianguloConGrosor2(-7, 2.05, -1.5, 0x0000FF);
+          crearTrianguloConGrosor3(6.02, 2.05, -1.5, 0x0000FF);
+          crearTrianguloConGrosor4(18, 2.05, -0.5, 0x0000FF);
+          crearTrianguloConGrosor5(16, 2.05, -3.5, 0x0000FF);
+          crearTrianguloConGrosor6(19.5, 2.05, -13.5, 0x0000FF);
+          crearTrianguloConGrosor8(18, 2.05, -19.5, 0x0000FF);
+          crearTrianguloConGrosor9(18, 2.05, -22.5, 0x0000FF);
+          crearTrianguloConGrosor10(13, 2.05, -27.5, 0x0000FF);
+          crearTrianguloConGrosor11(13.3, 2.05, -32.5, 0x0000FF);
+          crearTrianguloConGrosor12(0, 2.05, -30.5, 0x0000FF);
+
+          // Configurar raycaster para detección de colisiones
+          raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
+
+          // Ocultar indicador de carga
+          document.getElementById('loadingIndicator').style.display = 'none';
+
+          // Redimensionar la escena si cambia el tamaño de la ventana
+          window.addEventListener('resize', () => {
+            const canvas = document.querySelector('.fondo-3d');
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+          });
+
+          // Eventos de teclado para el modo caminar
+          document.addEventListener('keydown', onKeyDown);
+          document.addEventListener('keyup', onKeyUp);
+          document.addEventListener('pointerlockchange', onPointerLockChange);
+          document.addEventListener('pointerlockerror', onPointerLockError);
+          document.addEventListener('mousemove', onMouseMove);
+        }
+
+        function onKeyDown(event) {
+          if (!isWalkMode) return;
+
+          switch (event.code) {
+            case 'ArrowUp':
+            case 'KeyS':  // W para adelante
+              moveForward = true;
+              break;
+            case 'ArrowLeft':
+            case 'KeyD':  // A para izquierda
+              moveLeft = true;
+              break;
+            case 'ArrowDown':
+            case 'KeyW':  // S para atrás
+              moveBackward = true;
+              break;
+            case 'ArrowRight':
+            case 'KeyA':  // D para derecha
+              moveRight = true;
+              break;
+            case 'Space':
+              if (canJump) velocity.y += 350;
+              canJump = false;
+              break;
+            case 'ShiftLeft':
+            case 'ShiftRight':
+              isRunning = true;
+              updateSpeedIndicator();
+              break;
+          }
+        }
+
+        function onKeyUp(event) {
+          if (!isWalkMode) return;
+
+          switch (event.code) {
+            case 'ArrowUp':
+            case 'KeyS':  // W para adelante
+              moveForward = false;
+              break;
+            case 'ArrowLeft':
+            case 'KeyD':  // A para izquierda
+              moveLeft = false;
+              break;
+            case 'ArrowDown':
+            case 'KeyW':  // S para atrás
+              moveBackward = false;
+              break;
+            case 'ArrowRight':
+            case 'KeyA':  // D para derecha
+              moveRight = false;
+              break;
+            case 'ShiftLeft':
+            case 'ShiftRight':
+              isRunning = false;
+              updateSpeedIndicator();
+              break;
+          }
+        }
+
+        function onMouseMove(event) {
+          if (!isWalkMode || !isLocked) return;
+
+          const movementX = event.movementX || 0;
+          const movementY = event.movementY || 0;
+
+          // Rotación horizontal (yaw)
+          euler.y -= movementX * 0.002;
+          
+          // Rotación vertical (pitch)
+          euler.x -= movementY * 0.002;
+          
+          // Limitar la rotación vertical para no volcar
+          euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
+          
+          // Aplicar la rotación a la cámara
+          camera.quaternion.setFromEuler(euler);
+        }
+
+        function updateSpeedIndicator() {
+          const speedIndicator = document.getElementById('speedIndicator');
+          if (speedIndicator) {
+            if (isRunning) {
+              speedIndicator.innerHTML = '<i class="fas fa-running"></i> Velocidad: Corriendo';
+              speedIndicator.classList.add('running');
+            } else {
+              speedIndicator.innerHTML = '<i class="fas fa-walking"></i> Velocidad: Normal';
+              speedIndicator.classList.remove('running');
+            }
+          }
+        }
+
+        function onPointerLockChange() {
+          if (document.pointerLockElement === renderer.domElement) {
+            isLocked = true;
+          } else {
+            isLocked = false;
+          }
+        }
+
+        function onPointerLockError() {
+          console.error('PointerLockControls error');
+        }
+
+        function animate() {
+          requestAnimationFrame(animate);
+
+          if (isWalkMode && isLocked) {
+            const time = performance.now();
+            const delta = (time - prevTime) / 1000;
+
+            velocity.x -= velocity.x * 10.0 * delta;
+            velocity.z -= velocity.z * 10.0 * delta;
+            velocity.y -= 9.8 * 100.0 * delta; // gravedad
+
+            // Determinar la velocidad actual
+            const currentSpeed = isRunning ? runSpeed : moveSpeed;
+
+            // Obtener los vectores de dirección de la cámara
+            const forward = new THREE.Vector3(0, 0, -1);
+            forward.applyQuaternion(camera.quaternion);
+            forward.y = 0; // Mantener el movimiento en el plano horizontal
+            forward.normalize();
+
+            const right = new THREE.Vector3(1, 0, 0);
+            right.applyQuaternion(camera.quaternion);
+            right.y = 0; // Mantener el movimiento en el plano horizontal
+            right.normalize();
+
+            // Calcular el vector de movimiento
+            direction.set(0, 0, 0);
+            
+            if (moveForward) {
+              direction.add(forward);
+            }
+            if (moveBackward) {
+              direction.sub(forward);
+            }
+            if (moveRight) {
+              direction.add(right);
+            }
+            if (moveLeft) {
+              direction.sub(right);
+            }
+            
+            direction.normalize();
+
+            // Aplicar el movimiento
+            if (moveForward || moveBackward || moveLeft || moveRight) {
+              velocity.x = -direction.x * currentSpeed;
+              velocity.z = -direction.z * currentSpeed;
+            }
+
+            // Mover la cámara
+            camera.position.x += velocity.x * delta;
+            camera.position.y += velocity.y * delta;
+            camera.position.z += velocity.z * delta;
+
+            // Mantener la cámara a una altura constante
+            if (camera.position.y < 2) {
+              velocity.y = 0;
+              camera.position.y = 2;
+              canJump = true;
+            }
+
+            prevTime = time;
+          } else {
+            controls.update();
+          }
+
+          renderer.render(scene, camera);
+        }
+
+        // Crear partículas para el fondo animado
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Tamaño aleatorio
+                const size = Math.random() * 10 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Posición horizontal aleatoria
+                const posX = Math.random() * 100;
+                particle.style.left = `${posX}%`;
+                
+                // Duración de la animación aleatoria
+                const duration = Math.random() * 20 + 10;
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Retraso aleatorio
+                const delay = Math.random() * 5;
+                particle.style.animationDelay = `${delay}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Configurar audio
+        function setupAudio() {
+            const audio = document.getElementById('backgroundAudio');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const volumeControl = document.getElementById('volumeControl');
+            const playIcon = playPauseBtn.querySelector('i');
+            
+            // Establecer volumen inicial
+            audio.volume = 0.5;
+            
+            // Reproducir/pausar audio
+            playPauseBtn.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.play();
+                    playIcon.className = 'fas fa-pause';
+                } else {
+                    audio.pause();
+                    playIcon.className = 'fas fa-play';
+                }
+            });
+            
+            // Control de volumen
+            volumeControl.addEventListener('input', () => {
+                audio.volume = volumeControl.value / 100;
+            });
+            
+            // Intentar reproducir automáticamente (puede ser bloqueado por el navegador)
+            document.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.play().catch(e => {
+                        console.log("La reproducción automática fue bloqueada:", e);
+                    });
+                    playIcon.className = 'fas fa-pause';
+                }
+            }, { once: true });
+        }
+
+        // Configurar transición al hacer clic en el texto de bienvenida
+        function setupTransition() {
+            const welcomeText = document.getElementById('welcomeText');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const scene3d = document.getElementById('scene3d');
+            
+            welcomeText.addEventListener('click', () => {
+                // Ocultar pantalla de bienvenida
+                welcomeScreen.classList.add('hidden');
+                
+                // Mostrar escena 3D después de un pequeño retraso
+                setTimeout(() => {
+                    scene3d.classList.add('active');
+                    // Inicializar la escena 3D después de mostrarla
+                    init();
+                    animate();
+                }, 500);
+            });
+        }
+
+        // Funcionalidad para mostrar/ocultar paneles de información
+        function setupPanels() {
+          // Botones del menú
+          const infoBtn = document.getElementById('infoBtn');
+          const galleryBtn = document.getElementById('galleryBtn');
+          const locationBtn = document.getElementById('locationBtn');
+          const contactBtn = document.getElementById('contactBtn');
+          
+          // Paneles
+          const infoPanel = document.getElementById('infoPanel');
+          const galleryPanel = document.getElementById('galleryPanel');
+          const locationPanel = document.getElementById('locationPanel');
+          const contactPanel = document.getElementById('contactPanel');
+          
+          // Botones de cierre
+          const closeInfo = document.getElementById('closeInfo');
+          const closeGallery = document.getElementById('closeGallery');
+          const closeLocation = document.getElementById('closeLocation');
+          const closeContact = document.getElementById('closeContact');
+          
+          // Controles de cámara
+          const resetCamera = document.getElementById('resetCamera');
+          const autoRotate = document.getElementById('autoRotate');
+          const walkMode = document.getElementById('walkMode');
+          const movementInstructions = document.getElementById('movementInstructions');
+          
+          // Mostrar panel de información
+          infoBtn.addEventListener('click', function() {
+            infoPanel.style.display = 'flex';
+          });
+          
+          // Mostrar panel de galería
+          galleryBtn.addEventListener('click', function() {
+            galleryPanel.style.display = 'flex';
+          });
+          
+          // Mostrar panel de ubicación
+          locationBtn.addEventListener('click', function() {
+            locationPanel.style.display = 'flex';
+          });
+          
+          // Mostrar panel de contactos
+          contactBtn.addEventListener('click', function() {
+            contactPanel.style.display = 'flex';
+          });
+          
+          // Cerrar paneles
+          closeInfo.addEventListener('click', function() {
+            infoPanel.style.display = 'none';
+          });
+          
+          closeGallery.addEventListener('click', function() {
+            galleryPanel.style.display = 'none';
+          });
+          
+          closeLocation.addEventListener('click', function() {
+            locationPanel.style.display = 'none';
+          });
+          
+          closeContact.addEventListener('click', function() {
+            contactPanel.style.display = 'none';
+          });
+          
+          // Controles de cámara
+          resetCamera.addEventListener('click', function() {
+            camera.position.set(7, 10, 7);
+            controls.update();
+          });
+          
+          autoRotate.addEventListener('click', function() {
+            controls.autoRotate = !controls.autoRotate;
+            if (controls.autoRotate) {
+              autoRotate.classList.add('active');
+            } else {
+              autoRotate.classList.remove('active');
+            }
+          });
+          
+          // Modo caminar
+          walkMode.addEventListener('click', function() {
+            isWalkMode = !isWalkMode;
+            
+            if (isWalkMode) {
+              // Activar modo caminar
+              controls.enabled = false;
+              walkMode.classList.add('active');
+              movementInstructions.classList.add('active');
+              
+              // Mostrar indicador de velocidad
+              const speedIndicator = document.getElementById('speedIndicator');
+              speedIndicator.classList.add('active');
+              
+              // Bloquear el puntero
+              renderer.domElement.requestPointerLock();
+            } else {
+              // Desactivar modo caminar
+              document.exitPointerLock();
+              controls.enabled = true;
+              walkMode.classList.remove('active');
+              movementInstructions.classList.remove('active');
+              
+              // Ocultar indicador de velocidad
+              const speedIndicator = document.getElementById('speedIndicator');
+              speedIndicator.classList.remove('active');
+            }
+          });
+        }
+
+        // Inicializar todo cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            setupAudio();
+            setupTransition();
+            setupPanels();
+        });
+    </script>
+</body>
+</html>
